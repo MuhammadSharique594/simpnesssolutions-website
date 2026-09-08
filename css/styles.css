@@ -361,6 +361,13 @@ p {
   box-shadow: 0 16px 36px rgba(34, 240, 255, 0.4);
 }
 
+.btn:disabled {
+  opacity: 0.65;
+  cursor: wait;
+  transform: none;
+  pointer-events: none;
+}
+
 .btn-secondary {
   border-color: var(--line-strong);
   color: var(--ivory);
@@ -1533,6 +1540,14 @@ body.nav-open {
   color: var(--danger);
   font-size: 0.85rem;
   display: none;
+}
+
+.honey {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 }
 
 .field.is-invalid,
