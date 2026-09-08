@@ -95,7 +95,7 @@
 
     form.addEventListener("focusin", () => track("contact_form_started"));
 
-    form.addEventListener("submit", (e) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
       let valid = true;
       fields.forEach((field) => {
@@ -107,15 +107,37 @@
       });
       const need = form.querySelector('input[name="need"]:checked');
       const needErr = form.querySelector('[data-error-for="need"]');
+      const submitErr = form.querySelector('[data-error-for="submit"]');
+      const submitBtn = form.querySelector('button[type="submit"]');
       if (needErr) needErr.style.display = need ? "none" : "block";
+      if (submitErr) submitErr.style.display = "none";
       if (!need) valid = false;
       if (!valid) {
         form.querySelector(".is-invalid, .need")?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" });
         return;
       }
-      track("contact_form_submitted", { need: need.value });
-      form.classList.add("is-sent");
-      form.querySelector(".form-success")?.focus();
+
+      submitBtn.disabled = true;
+      const originalLabel = submitBtn.innerHTML;
+      submitBtn.textContent = "Sending…";
+
+      try {
+        const payload = new FormData(form);
+        const endpoint = form.getAttribute("action") || "https://formsubmit.co/ajax/info@simpnesssolutions.com";
+        const res = await fetch(endpoint, {
+          method: "POST",
+          body: payload,
+          headers: { Accept: "application/json" },
+        });
+        if (!res.ok) throw new Error("Send failed");
+        track("contact_form_submitted", { need: need.value });
+        form.classList.add("is-sent");
+        form.querySelector(".form-success")?.focus();
+      } catch (err) {
+        if (submitErr) submitErr.style.display = "block";
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalLabel;
+      }
     });
   }
 
